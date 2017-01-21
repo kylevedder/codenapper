@@ -8,11 +8,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Component
 public class URLUtils {
-
+  private static final Logger logger = Logger.getLogger(URLUtils.class);
   /**
    * Takes a URL and URI and appends them appropriately, regardless of leading and trailing slashes.
    * 
@@ -51,7 +52,7 @@ public class URLUtils {
       if (!line.equals(previous)) {
         previous = line;
         out.append(line).append('\n');
-        System.out.println(line);
+        logger.info(line);
       }
 
     // Check result
