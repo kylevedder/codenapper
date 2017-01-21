@@ -1,52 +1,50 @@
-# Pseudologos
-RESTful Web Service for Resume reading.
+# Codenapper
+RESTful Web Service for building and testing Mercurial code.
 
 Overview
 =======
 
+This is designed to be a minimal code build system.
+
 Dependencies
 ============
-This project requires JDK 8, Maven, and MongoDB to be installed on the 
-build server and it requires JRE 8 and MongoDB to be installed on the 
+This project requires JDK 8 and Maven to be installed on the 
+build server and it requires JRE 8 and Mercurial to be installed on the 
 release server.
 
 Building / Running
 ============
+You need to have your credentials in your `~.hgrc` file for this to pull properly, like so:
+
+```
+[auth]
+x.prefix = *
+x.username = USERNAME
+x.password = PASSWORD
+```
+
 To build, execute the **buildScript.sh** shell script.
 
 To run, execute the **assignment-\<version>.jar** JAR file in the **/target** directory.
 
 API
 =======
-The API allows for GET, POST, PUT, and DELETE.
+The API currently allows for GET only.
 
 GET
 -------
-**/api/objects**: Lists URLs to all the entries in the database in a 
-JSON array.
+**/hello**: Returns a simple "Hello" to let you know the service is running.
 
-**/api/objects/{uid}**: Returns the entry mapped to the *uid* requested.
-Returns error payload if an entity with the given *uid* does not exist.
+**/build**: Pulls and builds the latest code on the `default` branch.
 
-POST
--------
-**/api/objects**: Takes the JSON payload and stores it in the database, 
-returning the JSON payload with an added *uid* field. Returns an error 
-payload if not POSTed payload is not JSON.
+**/buildbranch/{branch}**: Pulls and builds the latest code on the given `branch`.
 
-PUT
--------
-**/api/objects/{uid}**: Takes the JSON payload and stores it in the database 
-with the given *uid* and returns the JSON payload. This operation is idempotent. 
-Throws an error the PUTed payload is not JSON.
+**/test**: Pulls, builds, and runs the unit tests for the latest code on the `default` branch.
 
-DELETE
--------
-**/api/objects/{uid}**: Deletes the entry associated with the given *uid*. 
-Returns an error payload if no entry with the given *uid* exists.
+**/testbranch/{branch}**: Pulls, builds, and runs the unit tests for the latest 
+code on the given `branch`.
 
 Errors
 -------
-The API will return an error payload if any of the aformentioned error cases
-are met, if unvalid URIs are requested, or invalid or unsupported request methods
-are used. Unsupported request methods include PATCH, HEAD, etc.
+The API will return an error message if any of the operations fail. Right now this 
+is a very bare bones system, so error handling is not very good.

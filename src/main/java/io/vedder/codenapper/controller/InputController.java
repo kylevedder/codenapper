@@ -3,6 +3,7 @@ package io.vedder.codenapper.controller;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,28 @@ public class InputController {
       return "Pull failed!";
     }
     logger.info("Pull succeeded!");
+    if (URLUtils.executeCommand("/usr/bin/hg", "update default") == null) {
+      return "Update failed!";
+    }
+    logger.info("Update succeeded!");
+    if (URLUtils.executeCommand("/usr/bin/make", "-j1") == null) {
+      return "make failed!";
+    }
+    logger.info("make succeeded!");
+    return "success - build";
+  }
+  
+  @RequestMapping(value = "/buildbranch/{branch}", method = RequestMethod.GET, produces = "application/json")
+  public String buildBranch(@PathVariable String branch) throws IOException, InterruptedException {
+    logger.info("build function called!");
+    if (URLUtils.executeCommand("/usr/bin/hg", "pull") == null) {
+      return "Pull failed!";
+    }
+    logger.info("Pull succeeded!");
+    if (URLUtils.executeCommand("/usr/bin/hg", "update " + branch) == null) {
+      return "Update to branch " + branch +" failed!";
+    }
+    logger.info("Update to branch " + branch +" succeeded!");
     if (URLUtils.executeCommand("/usr/bin/make", "-j1") == null) {
       return "make failed!";
     }
@@ -41,6 +64,10 @@ public class InputController {
       return "Pull failed!";
     }
     logger.info("Pull succeeded!");
+    if (URLUtils.executeCommand("/usr/bin/hg", "update default") == null) {
+      return "Update failed!";
+    }
+    logger.info("Update succeeded!");
     if (URLUtils.executeCommand("/usr/bin/make", "-j1") == null) {
       return "make failed!";
     }
@@ -49,5 +76,26 @@ public class InputController {
       return "tests failed!";
     }
     return "success - test";
+  }
+  
+  @RequestMapping(value = "/testbranch/{branch}", method = RequestMethod.GET, produces = "application/json")
+  public String testBranch(@PathVariable String branch) throws IOException, InterruptedException {
+    logger.info("build function called!");
+    if (URLUtils.executeCommand("/usr/bin/hg", "pull") == null) {
+      return "Pull failed!";
+    }
+    logger.info("Pull succeeded!");
+    if (URLUtils.executeCommand("/usr/bin/hg", "update " + branch) == null) {
+      return "Update to branch " + branch +" failed!";
+    }
+    logger.info("Update to branch " + branch +" succeeded!");
+    if (URLUtils.executeCommand("/usr/bin/make", "-j1") == null) {
+      return "make failed!";
+    }
+    logger.info("make succeeded!");
+    if (URLUtils.executeCommand("./bin/run_unit_tests", "") == null) {
+      return "tests failed!";
+    }    
+    return "success - build";
   }
 }
