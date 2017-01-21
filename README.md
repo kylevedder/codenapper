@@ -23,9 +23,17 @@ x.username = USERNAME
 x.password = PASSWORD
 ```
 
-To build, execute the **buildScript.sh** shell script.
+To build, execute the `buildScript.sh` shell script.
 
-To run, execute the **assignment-\<version>.jar** JAR file in the **/target** directory.
+To run, set the environment variable `SOURCEPATH` to the path to the Mercurial source. A suggested way to do that is `cd` into the directory and run the following:
+
+```
+export SOURCEPATH=`pwd`
+```
+
+Then, execute the `start.sh` shell script.
+
+To stop the server, execute the `stop.sh` shell script.
 
 API
 =======
