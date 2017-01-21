@@ -24,78 +24,80 @@ public class InputController {
   @RequestMapping(value = "/build", method = RequestMethod.GET, produces = "application/json")
   public String build() throws IOException, InterruptedException {
     logger.info("build function called!");
-    if (URLUtils.executeCommand("/usr/bin/hg", "pull") == null) {
+    if (URLUtils.executeCommand("/usr/bin/hg", new String[] {"pull"}) == null) {
       return "Pull failed!";
     }
     logger.info("Pull succeeded!");
-    if (URLUtils.executeCommand("/usr/bin/hg", "update default") == null) {
+    if (URLUtils.executeCommand("/usr/bin/hg", new String[] {"update", "default"}) == null) {
       return "Update failed!";
     }
     logger.info("Update succeeded!");
-    if (URLUtils.executeCommand("/usr/bin/make", "-j1") == null) {
+    if (URLUtils.executeCommand("/usr/bin/make", new String[] {"-j1"}) == null) {
       return "make failed!";
     }
     logger.info("make succeeded!");
     return "success - build";
   }
-  
-  @RequestMapping(value = "/buildbranch/{branch}", method = RequestMethod.GET, produces = "application/json")
+
+  @RequestMapping(value = "/buildbranch/{branch}", method = RequestMethod.GET,
+      produces = "application/json")
   public String buildBranch(@PathVariable String branch) throws IOException, InterruptedException {
     logger.info("build function called!");
-    if (URLUtils.executeCommand("/usr/bin/hg", "pull") == null) {
+    if (URLUtils.executeCommand("/usr/bin/hg", new String[]{"pull"}) == null) {
       return "Pull failed!";
     }
     logger.info("Pull succeeded!");
-    if (URLUtils.executeCommand("/usr/bin/hg", "update " + branch) == null) {
-      return "Update to branch " + branch +" failed!";
+    if (URLUtils.executeCommand("/usr/bin/hg", new String[]{"update", branch}) == null) {
+      return "Update to branch " + branch + " failed!";
     }
-    logger.info("Update to branch " + branch +" succeeded!");
-    if (URLUtils.executeCommand("/usr/bin/make", "-j1") == null) {
+    logger.info("Update to branch " + branch + " succeeded!");
+    if (URLUtils.executeCommand("/usr/bin/make", new String[]{"-j1"}) == null) {
       return "make failed!";
     }
     logger.info("make succeeded!");
     return "success - build";
   }
-  
+
   @RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
   public String test() throws IOException, InterruptedException {
     logger.info("test function called!");
-    if (URLUtils.executeCommand("/usr/bin/hg", "pull") == null) {
+    if (URLUtils.executeCommand("/usr/bin/hg", new String[]{"pull"}) == null) {
       return "Pull failed!";
     }
     logger.info("Pull succeeded!");
-    if (URLUtils.executeCommand("/usr/bin/hg", "update default") == null) {
+    if (URLUtils.executeCommand("/usr/bin/hg", new String[]{"updat", "default"}) == null) {
       return "Update failed!";
     }
     logger.info("Update succeeded!");
-    if (URLUtils.executeCommand("/usr/bin/make", "-j1") == null) {
+    if (URLUtils.executeCommand("/usr/bin/make", new String[]{"-j1"}) == null) {
       return "make failed!";
     }
     logger.info("make succeeded!");
-    if (URLUtils.executeCommand("./bin/run_unit_tests", "") == null) {
+    if (URLUtils.executeCommand("./bin/run_unit_tests", new String[]{""}) == null) {
       return "tests failed!";
     }
     return "success - test";
   }
-  
-  @RequestMapping(value = "/testbranch/{branch}", method = RequestMethod.GET, produces = "application/json")
+
+  @RequestMapping(value = "/testbranch/{branch}", method = RequestMethod.GET,
+      produces = "application/json")
   public String testBranch(@PathVariable String branch) throws IOException, InterruptedException {
     logger.info("build function called!");
-    if (URLUtils.executeCommand("/usr/bin/hg", "pull") == null) {
+    if (URLUtils.executeCommand("/usr/bin/hg", new String[]{"pull"}) == null) {
       return "Pull failed!";
     }
     logger.info("Pull succeeded!");
-    if (URLUtils.executeCommand("/usr/bin/hg", "update " + branch) == null) {
-      return "Update to branch " + branch +" failed!";
+    if (URLUtils.executeCommand("/usr/bin/hg", new String[]{"update", branch}) == null) {
+      return "Update to branch " + branch + " failed!";
     }
-    logger.info("Update to branch " + branch +" succeeded!");
-    if (URLUtils.executeCommand("/usr/bin/make", "-j1") == null) {
+    logger.info("Update to branch " + branch + " succeeded!");
+    if (URLUtils.executeCommand("/usr/bin/make", new String[]{"-j1"}) == null) {
       return "make failed!";
     }
     logger.info("make succeeded!");
-    if (URLUtils.executeCommand("./bin/run_unit_tests", "") == null) {
+    if (URLUtils.executeCommand("./bin/run_unit_tests", new String[]{""}) == null) {
       return "tests failed!";
-    }    
+    }
     return "success - build";
   }
 }

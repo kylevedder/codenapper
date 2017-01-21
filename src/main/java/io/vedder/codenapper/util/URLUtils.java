@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -28,12 +29,12 @@ public class URLUtils {
     return url;
   }
 
-  public static String executeCommand(String executable, String command) throws InterruptedException, IOException {
+  public static String executeCommand(String executable, String[] command) throws InterruptedException, IOException {
     // Build command
     List<String> commands = new ArrayList<String>();
     commands.add(executable);
     // Add arguments
-    commands.add(command);
+    commands.addAll(Arrays.asList(command));
     System.out.println(commands);
 
     // Run macro on target
