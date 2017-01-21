@@ -65,7 +65,7 @@ public class InputController {
       return "Pull failed!";
     }
     logger.info("Pull succeeded!");
-    if (URLUtils.executeCommand("/usr/bin/hg", new String[]{"updat", "default"}) == null) {
+    if (URLUtils.executeCommand("/usr/bin/hg", new String[]{"update", "default"}) == null) {
       return "Update failed!";
     }
     logger.info("Update succeeded!");
