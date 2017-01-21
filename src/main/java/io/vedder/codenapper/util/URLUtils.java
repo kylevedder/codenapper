@@ -38,7 +38,7 @@ public class URLUtils {
 
     // Run macro on target
     ProcessBuilder pb = new ProcessBuilder(commands);
-    pb.directory(new File("/home/kyle/code/robo-cup/greyhound-ssl/robocup-ssl/"));
+    pb.directory(new File("/home/ubuntu/code/robocup-ssl/"));
     pb.redirectErrorStream(true);
     Process process = pb.start();
 
