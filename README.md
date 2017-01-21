@@ -35,6 +35,8 @@ GET
 -------
 **/hello**: Returns a simple "Hello" to let you know the service is running.
 
+**/clean**: Runs `make clean`.
+
 **/build**: Pulls and builds the latest code on the `default` branch.
 
 **/buildbranch/{branch}**: Pulls and builds the latest code on the given `branch`.
