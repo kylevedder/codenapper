@@ -9,28 +9,20 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.stereotype.Component;
 
 @Component
 public class URLUtils {
-  private static final Logger logger = Logger.getLogger(URLUtils.class);
-  /**
-   * Takes a URL and URI and appends them appropriately, regardless of leading and trailing slashes.
-   * 
-   * @param url Base URL
-   * @param uri URI to append
-   * @return
-   */
-  public static String appendURI(String url, String uri) {
-    if (!url.endsWith("/") && !uri.startsWith("/"))
-      url = url.concat("/");
-    if (url.endsWith("/") && uri.startsWith("/"))
-      uri = uri.substring(1);
-    url = url.concat(uri);
-    return url;
-  }
+  @Value("${source-path}")
+  private String sourcePath;
 
-  public static String executeCommand(String executable, String[] command) throws InterruptedException, IOException {
+  private static final Logger logger = Logger.getLogger(URLUtils.class);
+
+  public String executeCommand(String executable, String[] command)
+      throws InterruptedException, IOException {
     // Build command
     List<String> commands = new ArrayList<String>();
     commands.add(executable);
@@ -40,7 +32,8 @@ public class URLUtils {
 
     // Run macro on target
     ProcessBuilder pb = new ProcessBuilder(commands);
-    pb.directory(new File("/home/ubuntu/code/robocup-ssl/"));
+    System.out.println("Source path: " + sourcePath);
+    pb.directory(new File(sourcePath));
     pb.redirectErrorStream(true);
     Process process = pb.start();
 
@@ -55,16 +48,20 @@ public class URLUtils {
         logger.info(line);
       }
 
-    // Check result
     if (process.waitFor() == 0) {
       System.out.println("Success!");
       return out.toString();
     } else {
-      // Abnormal termination: Log command parameters and output and throw ExecutionException
       System.err.println(commands);
       System.err.println(out.toString());
       return null;
     }
+  }
+
+  // To resolve ${} in @Value
+  @Bean
+  public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+    return new PropertySourcesPlaceholderConfigurer();
   }
 
 }

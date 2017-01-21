@@ -1,11 +1,11 @@
 package io.vedder.codenapper.controller;
 
 import java.io.IOException;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,9 +16,12 @@ import io.vedder.codenapper.util.URLUtils;
 @RestController
 public class InputController {
 
-  private static final Logger logger = Logger.getLogger(InputController.class);
+  private final Logger logger = Logger.getLogger(InputController.class);
 
-  private static final Lock aLock = new ReentrantLock();
+  private final Lock aLock = new ReentrantLock();
+  
+  @Autowired
+  private URLUtils urlUtils ;
 
   @RequestMapping(value = "/hello", method = RequestMethod.GET, produces = "application/json")
   public String hello() throws IOException {
@@ -26,23 +29,23 @@ public class InputController {
     return "Hello!";
   }
 
-  private static String buildStandard(String branch) {
+  private String buildStandard(String branch) {
     String message = "";
     aLock.lock();
     try {
       execution: {
         logger.info("build function called!");
-        if (URLUtils.executeCommand("/usr/bin/hg", new String[] {"pull"}) == null) {
+        if (urlUtils.executeCommand("/usr/bin/hg", new String[] {"pull"}) == null) {
           message = "Pull failed!";
           break execution;
         }
         logger.info("Pull succeeded!");
-        if (URLUtils.executeCommand("/usr/bin/hg", new String[] {"update", branch}) == null) {
+        if (urlUtils.executeCommand("/usr/bin/hg", new String[] {"update", branch}) == null) {
           message = "Update to branch " + branch + " failed!";
           break execution;
         }
         logger.info("Update to branch " + branch + " succeeded!");
-        if (URLUtils.executeCommand("/usr/bin/make", new String[] {"-j1"}) == null) {
+        if (urlUtils.executeCommand("/usr/bin/make", new String[] {"-j1"}) == null) {
           message = "make failed!";
           break execution;
         }
@@ -58,28 +61,28 @@ public class InputController {
     return message;
   }
 
-  private static String testStandardv2(String branch) {
+  private String testStandardv2(String branch) {
     String message = "";
     aLock.lock();
     try {
       execution: {
         logger.info("build function called!");
-        if (URLUtils.executeCommand("/usr/bin/hg", new String[] {"pull"}) == null) {
+        if (urlUtils.executeCommand("/usr/bin/hg", new String[] {"pull"}) == null) {
           message = "Pull failed!";
           break execution;
         }
         logger.info("Pull succeeded!");
-        if (URLUtils.executeCommand("/usr/bin/hg", new String[] {"update", branch}) == null) {
+        if (urlUtils.executeCommand("/usr/bin/hg", new String[] {"update", branch}) == null) {
           message = "Update to branch " + branch + " failed!";
           break execution;
         }
         logger.info("Update to branch " + branch + " succeeded!");
-        if (URLUtils.executeCommand("/usr/bin/make", new String[] {"-j1"}) == null) {
+        if (urlUtils.executeCommand("/usr/bin/make", new String[] {"-j1"}) == null) {
           message = "make failed!";
           break execution;
         }
         logger.info("make succeeded!");
-        if (URLUtils.executeCommand("./bin/run_unit_tests", new String[] {""}) == null) {
+        if (urlUtils.executeCommand("./bin/run_unit_tests", new String[] {""}) == null) {
           message = "tests failed!";
         }
         logger.info("tests succeeded!");
@@ -99,7 +102,7 @@ public class InputController {
     aLock.lock();
     try {
       logger.info("clean function called!");
-      if (URLUtils.executeCommand("/usr/bin/make", new String[] {"clean"}) == null) {
+      if (urlUtils.executeCommand("/usr/bin/make", new String[] {"clean"}) == null) {
         return "make clean failed!";
       }
       logger.info("make clean succeeded!");
