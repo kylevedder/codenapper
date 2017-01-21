@@ -20,6 +20,16 @@ public class InputController {
     logger.info("Hello function called!");
     return "Hello!";
   }
+  
+  @RequestMapping(value = "/clean", method = RequestMethod.GET, produces = "application/json")
+  public String clean() throws IOException, InterruptedException {
+    logger.info("clean function called!");
+    if (URLUtils.executeCommand("/usr/bin/make", new String[] {"clean"}) == null) {
+      return "make clean failed!";
+    }
+    logger.info("make clean succeeded!");
+    return "success - clean";
+  }
 
   @RequestMapping(value = "/build", method = RequestMethod.GET, produces = "application/json")
   public String build() throws IOException, InterruptedException {
@@ -36,7 +46,7 @@ public class InputController {
       return "make failed!";
     }
     logger.info("make succeeded!");
-    return "success - build";
+    return "success - built default";
   }
 
   @RequestMapping(value = "/buildbranch/{branch}", method = RequestMethod.GET,
@@ -55,7 +65,7 @@ public class InputController {
       return "make failed!";
     }
     logger.info("make succeeded!");
-    return "success - build";
+    return "success - built " + branch;
   }
 
   @RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
@@ -76,7 +86,7 @@ public class InputController {
     if (URLUtils.executeCommand("./bin/run_unit_tests", new String[]{""}) == null) {
       return "tests failed!";
     }
-    return "success - test";
+    return "success - tested default";
   }
 
   @RequestMapping(value = "/testbranch/{branch}", method = RequestMethod.GET,
@@ -98,6 +108,6 @@ public class InputController {
     if (URLUtils.executeCommand("./bin/run_unit_tests", new String[]{""}) == null) {
       return "tests failed!";
     }
-    return "success - build";
+    return "success - tested " + branch;
   }
 }
