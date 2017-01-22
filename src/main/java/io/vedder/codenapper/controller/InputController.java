@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.vedder.codenapper.model.Status;
 import io.vedder.codenapper.util.URLUtils;
 
 @RestController
@@ -19,119 +20,133 @@ public class InputController {
   private final Logger logger = Logger.getLogger(InputController.class);
 
   private final Lock aLock = new ReentrantLock();
-  
+
   @Autowired
-  private URLUtils urlUtils ;
+  private URLUtils urlUtils;
 
   @RequestMapping(value = "/hello", method = RequestMethod.GET, produces = "application/json")
-  public String hello() throws IOException {
+  public Status hello() throws IOException {
     logger.info("Hello function called!");
-    return "Hello!";
+    return new Status(true, "Hello", "");
   }
 
-  private String buildStandard(String branch) {
-    String message = "";
+  private Status buildStandard(String branch) {
+    Status status;
     aLock.lock();
     try {
       execution: {
         logger.info("build function called!");
-        if (urlUtils.executeCommand("/usr/bin/hg", new String[] {"pull"}) == null) {
-          message = "Pull failed!";
+        if (!(status = urlUtils.executeCommand("/usr/bin/hg", new String[] {"pull"}))
+            .isSuccessful()) {
+          status.setMessage("hg pull failed");
           break execution;
         }
         logger.info("Pull succeeded!");
-        if (urlUtils.executeCommand("/usr/bin/hg", new String[] {"update", branch}) == null) {
-          message = "Update to branch " + branch + " failed!";
+        if (!(status = urlUtils.executeCommand("/usr/bin/hg", new String[] {"update", branch}))
+            .isSuccessful()) {
+          status.setMessage("Update to branch " + branch + " failed!");
           break execution;
         }
         logger.info("Update to branch " + branch + " succeeded!");
-        if (urlUtils.executeCommand("/usr/bin/make", new String[] {"-j1"}) == null) {
-          message = "make failed!";
+        if (!(status = urlUtils.executeCommand("/usr/bin/make", new String[] {"-j1"}))
+            .isSuccessful()) {
+          status.setMessage("make failed!");
           break execution;
         }
         logger.info("make succeeded!");
-        message = "success - built " + branch;
+        status = new Status(true, "success - built " + branch, "");
       }
     } catch (Exception e) {
       aLock.unlock();
-      return "failure - exception thrown";
+      return new Status(false, "Failure - Exception", e.getMessage());
     } finally {
       aLock.unlock();
     }
-    return message;
+    return status;
   }
 
-  private String testStandardv2(String branch) {
-    String message = "";
+  private Status testStandard(String branch) {
+    Status status;
     aLock.lock();
     try {
       execution: {
         logger.info("build function called!");
-        if (urlUtils.executeCommand("/usr/bin/hg", new String[] {"pull"}) == null) {
-          message = "Pull failed!";
+        if (!(status = urlUtils.executeCommand("/usr/bin/hg", new String[] {"pull"}))
+            .isSuccessful()) {
+          status.setMessage("hg pull failed");
           break execution;
         }
         logger.info("Pull succeeded!");
-        if (urlUtils.executeCommand("/usr/bin/hg", new String[] {"update", branch}) == null) {
-          message = "Update to branch " + branch + " failed!";
+        if (!(status = urlUtils.executeCommand("/usr/bin/hg", new String[] {"update", branch}))
+            .isSuccessful()) {
+          status.setMessage("Update to branch " + branch + " failed!");
           break execution;
         }
         logger.info("Update to branch " + branch + " succeeded!");
-        if (urlUtils.executeCommand("/usr/bin/make", new String[] {"-j1"}) == null) {
-          message = "make failed!";
+        if (!(status = urlUtils.executeCommand("/usr/bin/make", new String[] {"-j1"}))
+            .isSuccessful()) {
+          status.setMessage("make failed!");
           break execution;
         }
         logger.info("make succeeded!");
-        if (urlUtils.executeCommand("./bin/run_unit_tests", new String[] {""}) == null) {
-          message = "tests failed!";
+        if (!(status = urlUtils.executeCommand("./bin/run_unit_tests", new String[] {""}))
+            .isSuccessful()) {
+          status.setMessage("tests failed!");
+          break execution;
         }
         logger.info("tests succeeded!");
-        message = "success - tested " + branch;
+        status = new Status(true, "success - tested " + branch, "");
       }
     } catch (Exception e) {
       aLock.unlock();
-      return "failure - exception thrown";
+      return new Status(false, "Failure - Exception", e.getMessage());
     } finally {
       aLock.unlock();
     }
-    return message;
+    return status;
   }
 
   @RequestMapping(value = "/clean", method = RequestMethod.GET, produces = "application/json")
-  public String clean() throws IOException, InterruptedException {
+  public Status clean() throws IOException, InterruptedException {
+    Status status;
     aLock.lock();
     try {
-      logger.info("clean function called!");
-      if (urlUtils.executeCommand("/usr/bin/make", new String[] {"clean"}) == null) {
-        return "make clean failed!";
+      execution: {
+        logger.info("clean function called!");
+        if (!(status = urlUtils.executeCommand("/usr/bin/make", new String[] {"clean"}))
+            .isSuccessful()) {
+          status.setMessage("make clean failed");
+          break execution;
+        }
+        logger.info("make clean succeeded!");
+        status = new Status(true, "make clean succeeded!", "");
       }
-      logger.info("make clean succeeded!");
-      return "success - clean";
     } finally {
       aLock.unlock();
     }
+    return status;
   }
 
   @RequestMapping(value = "/build", method = RequestMethod.GET, produces = "application/json")
-  public String build() throws IOException, InterruptedException {
+  public Status build() throws IOException, InterruptedException {
     return buildStandard("default");
   }
 
   @RequestMapping(value = "/buildbranch/{branch}", method = RequestMethod.GET,
       produces = "application/json")
-  public String buildBranch(@PathVariable String branch) throws IOException, InterruptedException {
+  public Status buildBranch(@PathVariable String branch) throws IOException, InterruptedException {
     logger.info("Build branch " + branch + " called!");
     return buildStandard(branch);
   }
 
   @RequestMapping(value = "/test", method = RequestMethod.GET, produces = "application/json")
-  public String test() throws IOException, InterruptedException {
-    return testStandardv2("default");
+  public Status test() throws IOException, InterruptedException {
+    return testStandard("default");
   }
 
   @RequestMapping(value = "/testbranch/{branch}", method = RequestMethod.GET,
       produces = "application/json")
-  public String testBranch(@PathVariable String branch) throws IOException, InterruptedException {
-    return testStandardv2(branch);
+  public Status testBranch(@PathVariable String branch) throws IOException, InterruptedException {
+    return testStandard(branch);
   }
 }
